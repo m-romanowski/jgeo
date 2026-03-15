@@ -3,8 +3,6 @@ package dev.marcinromanowski.postal;
 import static dev.marcinromanowski.postal.TestFixture.indexPath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import dev.marcinromanowski.postal.dto.PaginatedResponse;
-import dev.marcinromanowski.postal.dto.PostalLocation;
 import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -32,6 +30,7 @@ class FileIndexPostalTest {
     PostalLocation location = locations.getFirst();
     assertEquals("Toruń", location.city());
     assertEquals("Kujawsko-Pomorskie", location.state());
+    assertEquals("73", location.stateCode()); // FIPS code
   }
 
   @Test

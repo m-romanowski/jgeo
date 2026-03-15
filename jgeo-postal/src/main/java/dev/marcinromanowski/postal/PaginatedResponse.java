@@ -1,4 +1,4 @@
-package dev.marcinromanowski.postal.dto;
+package dev.marcinromanowski.postal;
 
 import java.util.List;
 

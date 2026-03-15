@@ -1,9 +1,7 @@
 package dev.marcinromanowski.postal;
 
-import dev.marcinromanowski.postal.dto.PostalLocation;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.lucene.util.BytesRef;
@@ -29,23 +27,47 @@ class PostalLookup {
     int zipHash = zip.hashCode() & 0xFFFFFF;
     int postalKey = (countryId << 24) | zipHash;
 
-    int idx = Arrays.binarySearch(loader.postalKeys, postalKey);
+    int idx = binarySearchUnsigned(loader.postalKeys, postalKey);
     if (idx < 0) {
       return List.of();
     }
 
-    int start = loader.offsets[idx];
-    int end = loader.offsets[idx + 1];
+    int start = loader.runStart[idx];
+    int end = loader.runEnd[idx];
 
     List<PostalLocation> result = new ArrayList<>(end - start);
     for (int i = start; i < end; i++) {
       int packed = loader.cityStateIds[i];
       int cityId = packed >>> 11;
       int stateId = packed & 0x7FF;
-      result.add(new PostalLocation(loader.getCity(cityId), loader.getState(stateId)));
+      PostalLocation location = new PostalLocation(
+          loader.getCity(cityId),
+          loader.getState(stateId),
+          loader.getStateCode(stateId)
+              .orElse(null)
+      );
+      result.add(location);
     }
 
     return result;
+  }
+
+  // Instead of Arrays.binarySearch, use unsigned binary search
+  private int binarySearchUnsigned(int[] arr, int key) {
+    int lo = 0;
+    int hi = arr.length - 1;
+    while (lo <= hi) {
+      int mid = (lo + hi) >>> 1;
+      int cmp = Integer.compareUnsigned(arr[mid], key);
+      if (cmp < 0) {
+        lo = mid + 1;
+      } else if (cmp > 0) {
+        hi = mid - 1;
+      } else {
+        return mid;
+      }
+    }
+    return -(lo + 1);
   }
 
   String[] lookupByCityArray(String countryCode, String city) throws IOException {

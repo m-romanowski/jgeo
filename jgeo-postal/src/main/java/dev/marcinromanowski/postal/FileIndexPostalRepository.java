@@ -1,7 +1,5 @@
 package dev.marcinromanowski.postal;
 
-import dev.marcinromanowski.postal.dto.PaginatedResponse;
-import dev.marcinromanowski.postal.dto.PostalLocation;
 import java.io.IOException;
 import java.util.List;
 
